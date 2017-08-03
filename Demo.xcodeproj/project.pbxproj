@@ -7,6 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		F1AC9E3A1F32EF9E00F9C9BB /* ZQAbstractDotView.m in Sources */ = {isa = PBXBuildFile; fileRef = F1AC9E2F1F32EF9E00F9C9BB /* ZQAbstractDotView.m */; };
+		F1AC9E3B1F32EF9E00F9C9BB /* ZQAnimatedDotView.m in Sources */ = {isa = PBXBuildFile; fileRef = F1AC9E311F32EF9E00F9C9BB /* ZQAnimatedDotView.m */; };
+		F1AC9E3C1F32EF9E00F9C9BB /* ZQDotView.m in Sources */ = {isa = PBXBuildFile; fileRef = F1AC9E331F32EF9E00F9C9BB /* ZQDotView.m */; };
+		F1AC9E3D1F32EF9E00F9C9BB /* ZQPageControl.m in Sources */ = {isa = PBXBuildFile; fileRef = F1AC9E351F32EF9E00F9C9BB /* ZQPageControl.m */; };
+		F1AC9E3E1F32EF9E00F9C9BB /* ZQCollectionViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = F1AC9E371F32EF9E00F9C9BB /* ZQCollectionViewCell.m */; };
+		F1AC9E3F1F32EF9E00F9C9BB /* ZQCycleScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = F1AC9E391F32EF9E00F9C9BB /* ZQCycleScrollView.m */; };
 		F1AE57AB1EF29E9A00A7BE75 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = F1AE57AA1EF29E9A00A7BE75 /* main.m */; };
 		F1AE57AE1EF29E9A00A7BE75 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = F1AE57AD1EF29E9A00A7BE75 /* AppDelegate.m */; };
 		F1AE57B11EF29E9A00A7BE75 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F1AE57B01EF29E9A00A7BE75 /* ViewController.m */; };
@@ -24,6 +30,18 @@
 		4B913A7E06F5F61A03B8C0BF /* Pods-Demo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Demo.release.xcconfig"; path = "Pods/Target Support Files/Pods-Demo/Pods-Demo.release.xcconfig"; sourceTree = "<group>"; };
 		512B94A4210C81F53104141D /* libPods-Demo.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Demo.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		60CA7F5AFECD2E068B002544 /* Pods-Demo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Demo.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Demo/Pods-Demo.debug.xcconfig"; sourceTree = "<group>"; };
+		F1AC9E2E1F32EF9E00F9C9BB /* ZQAbstractDotView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZQAbstractDotView.h; sourceTree = "<group>"; };
+		F1AC9E2F1F32EF9E00F9C9BB /* ZQAbstractDotView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZQAbstractDotView.m; sourceTree = "<group>"; };
+		F1AC9E301F32EF9E00F9C9BB /* ZQAnimatedDotView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZQAnimatedDotView.h; sourceTree = "<group>"; };
+		F1AC9E311F32EF9E00F9C9BB /* ZQAnimatedDotView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZQAnimatedDotView.m; sourceTree = "<group>"; };
+		F1AC9E321F32EF9E00F9C9BB /* ZQDotView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZQDotView.h; sourceTree = "<group>"; };
+		F1AC9E331F32EF9E00F9C9BB /* ZQDotView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZQDotView.m; sourceTree = "<group>"; };
+		F1AC9E341F32EF9E00F9C9BB /* ZQPageControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZQPageControl.h; sourceTree = "<group>"; };
+		F1AC9E351F32EF9E00F9C9BB /* ZQPageControl.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZQPageControl.m; sourceTree = "<group>"; };
+		F1AC9E361F32EF9E00F9C9BB /* ZQCollectionViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZQCollectionViewCell.h; sourceTree = "<group>"; };
+		F1AC9E371F32EF9E00F9C9BB /* ZQCollectionViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZQCollectionViewCell.m; sourceTree = "<group>"; };
+		F1AC9E381F32EF9E00F9C9BB /* ZQCycleScrollView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZQCycleScrollView.h; sourceTree = "<group>"; };
+		F1AC9E391F32EF9E00F9C9BB /* ZQCycleScrollView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZQCycleScrollView.m; sourceTree = "<group>"; };
 		F1AE57A61EF29E9A00A7BE75 /* Demo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Demo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F1AE57AA1EF29E9A00A7BE75 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		F1AE57AC1EF29E9A00A7BE75 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -69,6 +87,33 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		F1AC9E2C1F32EF9E00F9C9BB /* ZQCycleScrollView */ = {
+			isa = PBXGroup;
+			children = (
+				F1AC9E2D1F32EF9E00F9C9BB /* PageControl */,
+				F1AC9E361F32EF9E00F9C9BB /* ZQCollectionViewCell.h */,
+				F1AC9E371F32EF9E00F9C9BB /* ZQCollectionViewCell.m */,
+				F1AC9E381F32EF9E00F9C9BB /* ZQCycleScrollView.h */,
+				F1AC9E391F32EF9E00F9C9BB /* ZQCycleScrollView.m */,
+			);
+			path = ZQCycleScrollView;
+			sourceTree = "<group>";
+		};
+		F1AC9E2D1F32EF9E00F9C9BB /* PageControl */ = {
+			isa = PBXGroup;
+			children = (
+				F1AC9E2E1F32EF9E00F9C9BB /* ZQAbstractDotView.h */,
+				F1AC9E2F1F32EF9E00F9C9BB /* ZQAbstractDotView.m */,
+				F1AC9E301F32EF9E00F9C9BB /* ZQAnimatedDotView.h */,
+				F1AC9E311F32EF9E00F9C9BB /* ZQAnimatedDotView.m */,
+				F1AC9E321F32EF9E00F9C9BB /* ZQDotView.h */,
+				F1AC9E331F32EF9E00F9C9BB /* ZQDotView.m */,
+				F1AC9E341F32EF9E00F9C9BB /* ZQPageControl.h */,
+				F1AC9E351F32EF9E00F9C9BB /* ZQPageControl.m */,
+			);
+			path = PageControl;
+			sourceTree = "<group>";
+		};
 		F1AE579D1EF29E9A00A7BE75 = {
 			isa = PBXGroup;
 			children = (
@@ -90,6 +135,7 @@
 		F1AE57A81EF29E9A00A7BE75 /* Demo */ = {
 			isa = PBXGroup;
 			children = (
+				F1AC9E2C1F32EF9E00F9C9BB /* ZQCycleScrollView */,
 				F1AE57C01EF2A86700A7BE75 /* h1.jpg */,
 				F1AE57C11EF2A86700A7BE75 /* h2.jpg */,
 				F1AE57C21EF2A86700A7BE75 /* h3.jpg */,
@@ -242,9 +288,15 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F1AC9E3B1F32EF9E00F9C9BB /* ZQAnimatedDotView.m in Sources */,
 				F1AE57B11EF29E9A00A7BE75 /* ViewController.m in Sources */,
 				F1AE57AE1EF29E9A00A7BE75 /* AppDelegate.m in Sources */,
+				F1AC9E3E1F32EF9E00F9C9BB /* ZQCollectionViewCell.m in Sources */,
+				F1AC9E3C1F32EF9E00F9C9BB /* ZQDotView.m in Sources */,
+				F1AC9E3F1F32EF9E00F9C9BB /* ZQCycleScrollView.m in Sources */,
 				F1AE57AB1EF29E9A00A7BE75 /* main.m in Sources */,
+				F1AC9E3A1F32EF9E00F9C9BB /* ZQAbstractDotView.m in Sources */,
+				F1AC9E3D1F32EF9E00F9C9BB /* ZQPageControl.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

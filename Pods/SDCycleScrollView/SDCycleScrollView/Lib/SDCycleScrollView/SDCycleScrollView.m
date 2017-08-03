@@ -33,26 +33,24 @@
 #import "SDCollectionViewCell.h"
 #import "UIView+SDExtension.h"
 #import "TAPageControl.h"
-#import "UIImageView+WebCache.h"
-#import "SDImageCache.h"
-#import "iCarousel.h"
+#import <SDWebImageManager.h>
+#import <UIImageView+WebCache.h>
 
 #define kCycleScrollViewInitialPageControlDotSize CGSizeMake(10, 10)
 
 NSString * const ID = @"cycleCell";
 
-@interface SDCycleScrollView () <iCarouselDataSource,iCarouselDelegate>
+@interface SDCycleScrollView () <UICollectionViewDataSource, UICollectionViewDelegate>
 
 
-@property (nonatomic, weak) iCarousel *mainView; // 显示图片的collectionView
+@property (nonatomic, weak) UICollectionView *mainView; // 显示图片的collectionView
+@property (nonatomic, weak) UICollectionViewFlowLayout *flowLayout;
 @property (nonatomic, strong) NSArray *imagePathsGroup;
 @property (nonatomic, weak) NSTimer *timer;
 @property (nonatomic, assign) NSInteger totalItemsCount;
 @property (nonatomic, weak) UIControl *pageControl;
 
 @property (nonatomic, strong) UIImageView *backgroundImageView; // 当imageURLs为空时的背景图
-
-@property (nonatomic, assign) NSInteger networkFailedRetryCount;
 
 @end
 
@@ -82,10 +80,13 @@ NSString * const ID = @"cycleCell";
     _titleLabelTextFont= [UIFont systemFontOfSize:14];
     _titleLabelBackgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:0.5];
     _titleLabelHeight = 30;
+    _titleLabelTextAlignment = NSTextAlignmentLeft;
     _autoScroll = YES;
     _infiniteLoop = YES;
     _showPageControl = YES;
     _pageControlDotSize = kCycleScrollViewInitialPageControlDotSize;
+    _pageControlBottomOffset = 0;
+    _pageControlRightOffset = 0;
     _pageControlStyle = SDCycleScrollViewPageContolStyleClassic;
     _hidesForSinglePage = YES;
     _currentPageDotColor = [UIColor whiteColor];
@@ -130,14 +131,22 @@ NSString * const ID = @"cycleCell";
 // 设置显示图片的collectionView
 - (void)setupMainView
 {
-    iCarousel *_iCarousel = [[iCarousel alloc] initWithFrame:self.bounds];
-    _iCarousel.delegate = self;
-    _iCarousel.dataSource = self;
-    _iCarousel.bounces = NO;
-    _iCarousel.pagingEnabled = YES;
-    _iCarousel.type = iCarouselTypeCustom;
-    [self addSubview:_iCarousel];
-    _mainView = _iCarousel;
+    UICollectionViewFlowLayout *flowLayout = [[UICollectionViewFlowLayout alloc] init];
+    flowLayout.minimumLineSpacing = 0;
+    flowLayout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
+    _flowLayout = flowLayout;
+    
+    UICollectionView *mainView = [[UICollectionView alloc] initWithFrame:self.bounds collectionViewLayout:flowLayout];
+    mainView.backgroundColor = [UIColor clearColor];
+    mainView.pagingEnabled = YES;
+    mainView.showsHorizontalScrollIndicator = NO;
+    mainView.showsVerticalScrollIndicator = NO;
+    [mainView registerClass:[SDCollectionViewCell class] forCellWithReuseIdentifier:ID];
+    mainView.dataSource = self;
+    mainView.delegate = self;
+    mainView.scrollsToTop = NO;
+    [self addSubview:mainView];
+    _mainView = mainView;
 }
 
 
@@ -252,6 +261,13 @@ NSString * const ID = @"cycleCell";
     }
 }
 
+- (void)setScrollDirection:(UICollectionViewScrollDirection)scrollDirection
+{
+    _scrollDirection = scrollDirection;
+    
+    _flowLayout.scrollDirection = scrollDirection;
+}
+
 - (void)setAutoScrollTimeInterval:(CGFloat)autoScrollTimeInterval
 {
     _autoScrollTimeInterval = autoScrollTimeInterval;
@@ -268,9 +284,7 @@ NSString * const ID = @"cycleCell";
 
 - (void)setImagePathsGroup:(NSArray *)imagePathsGroup
 {
-    if (imagePathsGroup.count < _imagePathsGroup.count) {
-        [_mainView setContentOffset:CGSizeZero];
-    }
+    [self invalidateTimer];
     
     _imagePathsGroup = imagePathsGroup;
     
@@ -280,20 +294,11 @@ NSString * const ID = @"cycleCell";
         self.mainView.scrollEnabled = YES;
         [self setAutoScroll:self.autoScroll];
     } else {
-        [self invalidateTimer];
         self.mainView.scrollEnabled = NO;
     }
     
     [self setupPageControl];
     [self.mainView reloadData];
-    
-    if (imagePathsGroup.count) {
-        [self.backgroundImageView removeFromSuperview];
-    } else {
-        if (self.backgroundImageView && !self.backgroundImageView.superview) {
-            [self insertSubview:self.backgroundImageView belowSubview:self.mainView];
-        }
-    }
 }
 
 - (void)setImageURLStringsGroup:(NSArray *)imageURLStringsGroup
@@ -358,7 +363,7 @@ NSString * const ID = @"cycleCell";
     
     if ((self.imagePathsGroup.count == 1) && self.hidesForSinglePage) return;
     
-    int indexOnPageControl = [self currentIndex] % self.imagePathsGroup.count;
+    int indexOnPageControl = [self pageControlIndexWithCurrentCellIndex:[self currentIndex]];
     
     switch (self.pageControlStyle) {
         case SDCycleScrollViewPageContolStyleAnimated:
@@ -405,14 +410,19 @@ NSString * const ID = @"cycleCell";
     if (0 == _totalItemsCount) return;
     int currentIndex = [self currentIndex];
     int targetIndex = currentIndex + 1;
+    [self scrollToIndex:targetIndex];
+}
+
+- (void)scrollToIndex:(int)targetIndex
+{
     if (targetIndex >= _totalItemsCount) {
         if (self.infiniteLoop) {
             targetIndex = _totalItemsCount * 0.5;
-            [_mainView scrollToItemAtIndex:targetIndex animated:NO];
+            [_mainView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:targetIndex inSection:0] atScrollPosition:UICollectionViewScrollPositionNone animated:NO];
         }
         return;
     }
-    [_mainView scrollToItemAtIndex:targetIndex animated:YES];
+    [_mainView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:targetIndex inSection:0] atScrollPosition:UICollectionViewScrollPositionNone animated:YES];
 }
 
 - (int)currentIndex
@@ -422,8 +432,18 @@ NSString * const ID = @"cycleCell";
     }
     
     int index = 0;
-    index = (int)_mainView.currentItemIndex;
+    if (_flowLayout.scrollDirection == UICollectionViewScrollDirectionHorizontal) {
+        index = (_mainView.contentOffset.x + _flowLayout.itemSize.width * 0.5) / _flowLayout.itemSize.width;
+    } else {
+        index = (_mainView.contentOffset.y + _flowLayout.itemSize.height * 0.5) / _flowLayout.itemSize.height;
+    }
+    
     return MAX(0, index);
+}
+
+- (int)pageControlIndexWithCurrentCellIndex:(NSInteger)index
+{
+    return (int)index % self.imagePathsGroup.count;
 }
 
 - (void)clearCache
@@ -433,7 +453,7 @@ NSString * const ID = @"cycleCell";
 
 + (void)clearImagesCache
 {
-    [[[SDWebImageManager sharedManager] imageCache] clearDisk];
+    [[[SDWebImageManager sharedManager] imageCache] clearDiskOnCompletion:nil];
 }
 
 #pragma mark - life circles
@@ -442,15 +462,17 @@ NSString * const ID = @"cycleCell";
 {
     [super layoutSubviews];
     
+    _flowLayout.itemSize = self.frame.size;
+    
     _mainView.frame = self.bounds;
-    if (_mainView.contentOffset.width == 0 &&  _totalItemsCount) {
+    if (_mainView.contentOffset.x == 0 &&  _totalItemsCount) {
         int targetIndex = 0;
         if (self.infiniteLoop) {
             targetIndex = _totalItemsCount * 0.5;
         }else{
             targetIndex = 0;
         }
-        [_mainView scrollToItemAtIndex:targetIndex animated:NO];
+        [_mainView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:targetIndex inSection:0] atScrollPosition:UICollectionViewScrollPositionNone animated:NO];
     }
     
     CGSize size = CGSizeZero;
@@ -461,7 +483,7 @@ NSString * const ID = @"cycleCell";
         }
         size = [pageControl sizeForNumberOfPages:self.imagePathsGroup.count];
     } else {
-        size = CGSizeMake(self.imagePathsGroup.count * self.pageControlDotSize.width * 1.2, self.pageControlDotSize.height);
+        size = CGSizeMake(self.imagePathsGroup.count * self.pageControlDotSize.width * 1.5, self.pageControlDotSize.height);
     }
     CGFloat x = (self.sd_width - size.width) * 0.5;
     if (self.pageControlAliment == SDCycleScrollViewPageContolAlimentRight) {
@@ -474,7 +496,10 @@ NSString * const ID = @"cycleCell";
         [pageControl sizeToFit];
     }
     
-    self.pageControl.frame = CGRectMake(x, y, size.width, size.height);
+    CGRect pageControlFrame = CGRectMake(x, y, size.width, size.height);
+    pageControlFrame.origin.y -= self.pageControlBottomOffset;
+    pageControlFrame.origin.x -= self.pageControlRightOffset;
+    self.pageControl.frame = pageControlFrame;
     self.pageControl.hidden = !_showPageControl;
     
     if (self.backgroundImageView) {
@@ -503,59 +528,12 @@ NSString * const ID = @"cycleCell";
 {
     long targetIndex = [self currentIndex];
     if (targetIndex < _totalItemsCount) {
-        [_mainView scrollToItemAtIndex:targetIndex animated:NO];
+        [_mainView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:targetIndex inSection:0] atScrollPosition:UICollectionViewScrollPositionNone animated:NO];
     }
 }
 
 
 #pragma mark - UICollectionViewDataSource
-
--(UIView *)carousel:(iCarousel *)carousel viewForItemAtIndex:(NSInteger)index reusingView:(UIView *)view{
-    if (view == nil) {
-        CGFloat viewWidth = CGRectGetWidth(self.frame)-60;
-        CGFloat viewHeight = CGRectGetHeight(carousel.frame);
-        view = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, viewWidth, viewHeight)];
-    }
-    
-    long itemIndex = index % self.imagePathsGroup.count;
-
-    NSString *imagePath = self.imagePathsGroup[itemIndex];
-    
-    if (!self.onlyDisplayText && [imagePath isKindOfClass:[NSString class]]) {
-        if ([imagePath hasPrefix:@"http"]) {
-            [((UIImageView *)view) sd_setImageWithURL:[NSURL URLWithString:imagePath] placeholderImage:self.placeholderImage];
-        } else {
-            UIImage *image = [UIImage imageNamed:imagePath];
-            if (!image) {
-                [UIImage imageWithContentsOfFile:imagePath];
-            }
-            ((UIImageView *)view).image = image;
-        }
-    } else if (!self.onlyDisplayText && [imagePath isKindOfClass:[UIImage class]]) {
-        ((UIImageView *)view).image = (UIImage *)imagePath;
-    }
-    return view;
-}
-
--(NSInteger)numberOfItemsInCarousel:(iCarousel *)carousel{
-    return _totalItemsCount;
-}
-
--(CATransform3D)carousel:(iCarousel *)carousel itemTransformForOffset:(CGFloat)offset baseTransform:(CATransform3D)transform{
-    static CGFloat max_sacle = 1.0f;
-    static CGFloat min_scale = 0.6f;
-    if (offset <= 1 && offset >= -1) {
-        float tempScale = offset < 0 ? 1+offset : 1-offset;
-        float slope = (max_sacle - min_scale) / 1;
-        
-        CGFloat scale = min_scale + slope*tempScale;
-        transform = CATransform3DScale(transform, scale, scale, 1);
-    }else{
-        transform = CATransform3DScale(transform, min_scale, min_scale, 1);
-    }
-    
-    return CATransform3DTranslate(transform, offset * carousel.itemWidth * 1.4, 0.0, 0.0);
-}
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
 {
@@ -565,7 +543,7 @@ NSString * const ID = @"cycleCell";
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
 {
     SDCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:ID forIndexPath:indexPath];
-    long itemIndex = indexPath.item % self.imagePathsGroup.count;
+    long itemIndex = [self pageControlIndexWithCurrentCellIndex:indexPath.item];
     
     NSString *imagePath = self.imagePathsGroup[itemIndex];
     
@@ -590,6 +568,7 @@ NSString * const ID = @"cycleCell";
     if (!cell.hasConfigured) {
         cell.titleLabelBackgroundColor = self.titleLabelBackgroundColor;
         cell.titleLabelHeight = self.titleLabelHeight;
+        cell.titleLabelTextAlignment = self.titleLabelTextAlignment;
         cell.titleLabelTextColor = self.titleLabelTextColor;
         cell.titleLabelTextFont = self.titleLabelTextFont;
         cell.hasConfigured = YES;
@@ -604,21 +583,21 @@ NSString * const ID = @"cycleCell";
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
 {
     if ([self.delegate respondsToSelector:@selector(cycleScrollView:didSelectItemAtIndex:)]) {
-        [self.delegate cycleScrollView:self didSelectItemAtIndex:indexPath.item % self.imagePathsGroup.count];
+        [self.delegate cycleScrollView:self didSelectItemAtIndex:[self pageControlIndexWithCurrentCellIndex:indexPath.item]];
     }
     if (self.clickItemOperationBlock) {
-        self.clickItemOperationBlock(indexPath.item % self.imagePathsGroup.count);
+        self.clickItemOperationBlock([self pageControlIndexWithCurrentCellIndex:indexPath.item]);
     }
 }
 
 
 #pragma mark - UIScrollViewDelegate
 
-- (void)carouselDidScroll:(iCarousel *)carousel
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
     if (!self.imagePathsGroup.count) return; // 解决清除timer时偶尔会出现的问题
     int itemIndex = [self currentIndex];
-    int indexOnPageControl = itemIndex % self.imagePathsGroup.count;
+    int indexOnPageControl = [self pageControlIndexWithCurrentCellIndex:itemIndex];
     
     if ([self.pageControl isKindOfClass:[TAPageControl class]]) {
         TAPageControl *pageControl = (TAPageControl *)_pageControl;
@@ -629,30 +608,30 @@ NSString * const ID = @"cycleCell";
     }
 }
 
-- (void)carouselWillBeginDragging:(UIScrollView *)scrollView
+- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
 {
     if (self.autoScroll) {
         [self invalidateTimer];
     }
 }
 
-- (void)carouselDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
+- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
 {
     if (self.autoScroll) {
         [self setupTimer];
     }
 }
 
-- (void)carouselDidEndDecelerating:(UIScrollView *)scrollView
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
-    [self carouselDidEndScrollingAnimation:self.mainView];
+    [self scrollViewDidEndScrollingAnimation:self.mainView];
 }
 
-- (void)carouselDidEndScrollingAnimation:(iCarousel *)scrollView
+- (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView
 {
     if (!self.imagePathsGroup.count) return; // 解决清除timer时偶尔会出现的问题
     int itemIndex = [self currentIndex];
-    int indexOnPageControl = itemIndex % self.imagePathsGroup.count;
+    int indexOnPageControl = [self pageControlIndexWithCurrentCellIndex:itemIndex];
     
     if ([self.delegate respondsToSelector:@selector(cycleScrollView:didScrollToIndex:)]) {
         [self.delegate cycleScrollView:self didScrollToIndex:indexOnPageControl];
